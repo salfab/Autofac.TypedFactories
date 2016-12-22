@@ -156,14 +156,7 @@ namespace Autofac.TypedFactories.Test
             // normal dependency, unrelated to factories
             containerBuilder.RegisterType<DependencyService>().As<IDependencyService>();
 
-            containerBuilder.RegisterTypedFactory<IParameteredServiceFactory>().ForConcreteType<MisalignedParameteredService>();
-            var container = containerBuilder.Build();
-            var dependencyServiceFactory = container.Resolve<IParameteredServiceFactory>();
-            Assert.IsNotNull(dependencyServiceFactory);
-
-            var createdInstance = dependencyServiceFactory.Create(1);
-            Assert.IsNotNull(createdInstance);
-            Assert.AreEqual(1, createdInstance.Number);
+            containerBuilder.RegisterTypedFactory<IParameteredServiceFactory>().ForConcreteType<MisalignedParameteredService>();       
         }
     }
 }
