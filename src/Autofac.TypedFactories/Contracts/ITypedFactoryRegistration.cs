@@ -12,7 +12,7 @@
         /// <summary>
         /// Gets the target Unity container on which to perform the registrations.
         /// </summary>
-        ContainerBuilder Container { get; }
+       // ContainerBuilder Container { get; }
 
         #endregion
 
@@ -35,5 +35,7 @@
         void ForConcreteType<TTo>();
 
         #endregion
+
+        void ReturningConcreteType();
     }
 }

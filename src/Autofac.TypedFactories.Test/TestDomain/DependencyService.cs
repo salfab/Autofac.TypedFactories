@@ -1,4 +1,4 @@
-﻿namespace Autofac.TypedFactories.Test
+namespace Autofac.TypedFactories.Test
 {
     public class DependencyService
         : IDependencyService

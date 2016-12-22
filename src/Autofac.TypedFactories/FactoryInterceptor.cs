@@ -16,6 +16,8 @@
     {
         #region Fields
 
+        protected readonly ILifetimeScope lifetimeScope;
+
         /// <summary>
         /// The concrete class which will be constructed by the factory.
         /// </summary>
@@ -33,9 +35,7 @@
         /// <summary>
         ///     Initializes a new instance of the <see cref="FactoryInterceptor"/> class.
         /// </summary>
-        /// <param name="container">
-        ///     The Unity container.
-        /// </param>
+        /// <param name="lifetimeScope"></param>
         /// <param name="concreteType">
         ///     The concrete class which will be constructed by the factory.
         /// </param>
@@ -43,28 +43,16 @@
         /// <exception cref="ArgumentNullException">
         ///     Thrown when the injected <paramref name="container"/> is null.
         /// </exception>
-        public FactoryInterceptor(IComponentContext container,
-                                  Type concreteType,
-                                  string name)
+        public FactoryInterceptor(ILifetimeScope lifetimeScope, Type concreteType, string name)
         {
+            this.lifetimeScope = lifetimeScope;
             this.concreteType = concreteType;
             this.name = name;
-            if (container == null)
-            {
-                throw new ArgumentNullException("container");
-            }
-
-            this.Container = container;
         }
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets or sets the injected <see cref="IUnityContainer"/> instance which will be used to resolve the <see cref="concreteType"/> type.
-        /// </summary>
-        protected IComponentContext Container { get; private set; }
 
         #endregion
 
@@ -73,7 +61,8 @@
         /// <inheritdoc />
         void IInterceptor.Intercept(IInvocation invocation)
         {
-            if (invocation.Method == null || !invocation.Method.ReturnType.IsInterface)
+            // We now support concrete return types 
+            if (invocation.Method == null)
             {
                 throw new NotImplementedException();
             }
@@ -102,7 +91,7 @@
             {
                 var innerException = resolutionFailedException.InnerException;
                 var invalidOperationException = innerException as InvalidOperationException;
-
+                throw;
                 throw new NotImplementedException("Implement the Autofac version.");
                 // Check if the resolution failure was due to parameter name mismatches, and if so, report it to the user.
                 //if (invalidOperationException != null && innerException.Source == "Microsoft.Practices.Unity")
@@ -203,17 +192,15 @@
         {
             if (this.name == null)
             {
-                if (invocation.Arguments.Any())
-                    invocation.ReturnValue = this.Container.Resolve(
-                        this.concreteType,
-                        GetNamedParameters(invocation).ToArray());
-                else invocation.ReturnValue = this.Container.Resolve(this.concreteType);
+                invocation.ReturnValue = invocation.Arguments.Any()
+                                             ? this.lifetimeScope.Resolve(this.concreteType, GetNamedParameters(invocation).ToArray())
+                                             : this.lifetimeScope.Resolve(this.concreteType);
             }
             else
             {
                 invocation.ReturnValue = invocation.Arguments.Any()
-                                             ? this.Container.Resolve(this.concreteType, GetNamedParameters(invocation).ToArray())
-                                             : this.Container.Resolve(this.concreteType);
+                                             ? this.lifetimeScope.Resolve(this.concreteType, GetNamedParameters(invocation).ToArray())
+                                             : this.lifetimeScope.Resolve(this.concreteType);
             }
         }
 

@@ -54,10 +54,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="DependencyService.cs" />
-    <Compile Include="IDependencyService.cs" />
-    <Compile Include="IDependencyServiceFactory.cs" />
+    <Compile Include="TestDomain\ConcreteDependencyService.cs" />
+    <Compile Include="TestDomain\DependencyService.cs" />
+    <Compile Include="TestDomain\IConcreteDependencyServiceFactory.cs" />
+    <Compile Include="TestDomain\IDependencyService.cs" />
+    <Compile Include="TestDomain\IDependencyServiceFactory.cs" />
     <Compile Include="Integration.cs" />
+    <Compile Include="TestDomain\IParameteredServiceFactory.cs" />
+    <Compile Include="TestDomain\IParameteredServiceWithDependency.cs" />
+    <Compile Include="TestDomain\IParameteredServiceWithDependencyFactory.cs" />
+    <Compile Include="TestDomain\ParameteredService.cs" />
+    <Compile Include="TestDomain\ParameteredServiceWithDependency.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

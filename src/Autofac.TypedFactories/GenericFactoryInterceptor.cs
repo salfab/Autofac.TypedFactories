@@ -19,14 +19,13 @@
         /// <param name="container">
         ///     The Unity container.
         /// </param>
+        /// <param name="lifetimeScope"></param>
         /// <param name="name">Name that will be used to request the type.</param>
         /// <exception cref="ArgumentNullException">
         /// Thrown when the injected <paramref name="container"/> is null.
         /// </exception>
-        public GenericFactoryInterceptor(
-            IComponentContext container,
-            string name)
-            : base(container, typeof(TConcrete), name)
+        public GenericFactoryInterceptor(IComponentContext container, ILifetimeScope lifetimeScope, string name)
+            : base(lifetimeScope, typeof(TConcrete), name)
         {
         }
 
