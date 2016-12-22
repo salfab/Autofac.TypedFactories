@@ -4,8 +4,4 @@ namespace Autofac.TypedFactories.Test
     {
         IDependencyService Create();
     }
-    public interface IDependencyOtherServiceFactory
-    {
-        IDependencyService Create();
-    }
 }

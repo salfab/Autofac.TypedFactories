@@ -4,9 +4,4 @@ namespace Autofac.TypedFactories.Test
     {
         IParameteredService Create(int number);
     }
-
-    public interface IParameteredService
-    {
-        int Number { get; set; }
-    }
 }

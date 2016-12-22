@@ -51,6 +51,7 @@
     <Compile Include="AutofacTypedFactoryExtensions.cs" />
     <Compile Include="ConstructorArgumentsMismatchException.cs" />
     <Compile Include="Contracts\ITypedFactoryRegistration.cs" />
+    <Compile Include="Exceptions\FactorySignatureMismatchException.cs" />
     <Compile Include="FactoryInterceptor.cs" />
     <Compile Include="GenericFactoryInterceptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -2,6 +2,9 @@
 
 namespace Autofac.TypedFactories.Test
 {
+    using System;
+
+    using Autofac.TypedFactories.Exceptions;
     using Autofac.TypedFactories.Test.TestDomain;
 
     [TestClass]
@@ -122,21 +125,45 @@ namespace Autofac.TypedFactories.Test
         public void ParameterlessMultipleFactories()
         {
             var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterTypedFactory<IDependencyServiceFactory>().ForConcreteType<DependencyService>();
-            containerBuilder.RegisterTypedFactory<IDependencyOtherServiceFactory>().ForConcreteType<DependencyService>();
+            containerBuilder.RegisterType<DependencyService>().As<IDependencyService>();
+            containerBuilder.RegisterTypedFactory<IParameteredServiceWithDependencyFactory>().ForConcreteType<ParameteredServiceWithDependency>();
+            containerBuilder.RegisterTypedFactory<IOtherParameteredServiceWithDependencyFactory>().ForConcreteType<ParameteredServiceWithDependency>();
             var container = containerBuilder.Build();
-            var dependencyServiceFactory = container.Resolve<IDependencyServiceFactory>();
+
+            // factory 1
+            var dependencyServiceFactory = container.Resolve<IParameteredServiceWithDependencyFactory>();
             Assert.IsNotNull(dependencyServiceFactory);
-            var createdInstance = dependencyServiceFactory.Create();
+            var createdInstance = dependencyServiceFactory.Create(1);
             Assert.IsNotNull(createdInstance);
 
-            var dependencyServiceFactory2 = container.Resolve<IDependencyOtherServiceFactory>();
+            // factory 2
+            var dependencyServiceFactory2 = container.Resolve<IOtherParameteredServiceWithDependencyFactory>();
             Assert.IsNotNull(dependencyServiceFactory2);
-            var createdOtherInstance = dependencyServiceFactory2.Create();
+            var specifiedDependencyService = new DependencyService();
+            var createdOtherInstance = dependencyServiceFactory2.Create(2, specifiedDependencyService);
             Assert.IsNotNull(createdOtherInstance);
 
-            var createdInstance2 = dependencyServiceFactory.Create();
-            Assert.AreNotSame(createdInstance, createdInstance2);
+            Assert.AreSame(specifiedDependencyService, createdOtherInstance.Dependency);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FactorySignatureMismatchException))]
+        public void DetectMisalignedFactorySignatures()
+        {
+            var containerBuilder = new ContainerBuilder();
+
+            // normal dependency, unrelated to factories
+            containerBuilder.RegisterType<DependencyService>().As<IDependencyService>();
+
+            containerBuilder.RegisterTypedFactory<IParameteredServiceFactory>().ForConcreteType<MisalignedParameteredService>();
+            var container = containerBuilder.Build();
+            var dependencyServiceFactory = container.Resolve<IParameteredServiceFactory>();
+            Assert.IsNotNull(dependencyServiceFactory);
+
+            var createdInstance = dependencyServiceFactory.Create(1);
+            Assert.IsNotNull(createdInstance);
+            Assert.AreEqual(1, createdInstance.Number);
         }
     }
 }

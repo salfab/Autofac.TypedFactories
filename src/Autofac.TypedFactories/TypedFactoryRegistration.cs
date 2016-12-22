@@ -9,6 +9,8 @@ namespace Autofac.TypedFactories
     using System.Linq;
     using System.Reflection;
 
+    using Autofac.TypedFactories.Exceptions;
+
     internal class TypedFactoryRegistration<TFactory> : TypedFactoryRegistration
         where TFactory : class
     {
@@ -44,6 +46,16 @@ namespace Autofac.TypedFactories
             //TODO: Add a "ForRegisteredType" to avoid registering the same type twice ?
             this.ContainerBuilder.RegisterType<TTo>();
 
+            var allSignaturesMatch = typeof(TFactory)
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(info => info.ReturnType.IsAssignableFrom(typeof(TTo)))
+                .Select(info => this.IsSignatureAligned(info, typeof(TTo)))
+                .All(b => b);
+            if (!allSignaturesMatch)
+            {
+                throw new FactorySignatureMismatchException("No signatures in the factory are matching the type to construct.");
+            }
+
             Func<IComponentContext, TFactory> injectionFactory = context =>
                 {
                     var lifetimeScope = context.Resolve<ILifetimeScope>();
@@ -56,9 +68,9 @@ namespace Autofac.TypedFactories
             {
                 throw new NotImplementedException("passing a Name is not supported by autofac... or is it ?");
             }
-        }
+        }      
 
-                /// <summary>
+        /// <summary>
         /// Defines the factory already returns concrete types.
         /// </summary>
         public override void ReturningConcreteType()
@@ -190,6 +202,18 @@ namespace Autofac.TypedFactories
             //TODO: Add a "ForRegisteredType" to avoid registering the same type twice ?
             this.ContainerBuilder.RegisterType(toType);
 
+            var allSignaturesMatch = toType
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(info => info.ReturnType.IsAssignableFrom(toType))
+                .Select(info => this.IsSignatureAligned(info, toType))
+                .All(b => b);
+
+            if (!allSignaturesMatch)
+            {
+                throw new InvalidOperationException("No signatures in the factory are matching the type to construct.");
+            }
+
+
             // throw new NotImplementedException("Registering factories by providing the type as a parameter is not yet supported. Please provide the type of the factory as a TypeArgument");
             this.ContainerBuilder.Register(
                 (context, parameters) =>
@@ -216,6 +240,20 @@ namespace Autofac.TypedFactories
         {
             var factoryContractType = this.factoryContractType;
             this.ReturningConcreteType(factoryContractType);
+        }
+
+        protected bool IsSignatureAligned(MethodInfo methodInfo, Type returnType)
+        {
+            var methodParameters = methodInfo.GetParameters();
+            return returnType.GetConstructors()
+                .Any(constructorInfo =>
+                {
+                    return methodParameters                    
+                    .All(paramInfo =>
+                            constructorInfo
+                            .GetParameters()
+                            .Any(mpi => mpi.Name == paramInfo.Name && mpi.ParameterType == paramInfo.ParameterType));
+                });
         }
 
         protected void ReturningConcreteType(Type factoryContractType)

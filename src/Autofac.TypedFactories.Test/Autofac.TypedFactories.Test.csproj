@@ -60,9 +60,12 @@
     <Compile Include="TestDomain\IDependencyService.cs" />
     <Compile Include="TestDomain\IDependencyServiceFactory.cs" />
     <Compile Include="Integration.cs" />
+    <Compile Include="TestDomain\IOtherParameteredServiceWithDependencyFactory.cs" />
+    <Compile Include="TestDomain\IParameteredService.cs" />
     <Compile Include="TestDomain\IParameteredServiceFactory.cs" />
     <Compile Include="TestDomain\IParameteredServiceWithDependency.cs" />
     <Compile Include="TestDomain\IParameteredServiceWithDependencyFactory.cs" />
+    <Compile Include="TestDomain\MisalignedParameteredService.cs" />
     <Compile Include="TestDomain\ParameteredService.cs" />
     <Compile Include="TestDomain\ParameteredServiceWithDependency.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
