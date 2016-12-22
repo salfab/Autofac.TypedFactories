@@ -5,6 +5,7 @@
         <version>$version$</version>
         <authors>Fabio Salvalai</authors>
         <owners>Fabio Salvalai</owners>
+        <licenseUrl>https://github.com/salfab/Autofac.TypedFactories/blob/master/LICENSE</licenseUrl>
         <projectUrl>https://github.com/salfab/Autofac.TypedFactories</projectUrl>
         <iconUrl>https://autofac.org/img/carousel-logo.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
