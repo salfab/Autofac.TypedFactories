@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 
 namespace Autofac.TypedFactories.Test
 {
@@ -7,10 +7,11 @@ namespace Autofac.TypedFactories.Test
     using Autofac.TypedFactories.Exceptions;
     using Autofac.TypedFactories.Test.TestDomain;
 
-    [TestClass]
+    
+    [TestFixture]
     public class Integration
     {
-        [TestMethod]
+        [Test]
         public void NoRegressionInTypicalScenario()
         {
             var containerBuilder = new ContainerBuilder();
@@ -20,7 +21,7 @@ namespace Autofac.TypedFactories.Test
             Assert.IsNotNull(instance);
         }
 
-        [TestMethod]
+        [Test]
         public void ParameterlessFactory()
         {
             var containerBuilder = new ContainerBuilder();
@@ -34,7 +35,7 @@ namespace Autofac.TypedFactories.Test
             Assert.AreNotSame(createdInstance, createdInstance2);
         }
 
-        [TestMethod]
+        [Test]
         public void ParameteredFactory()
         {
             var containerBuilder = new ContainerBuilder();
@@ -55,7 +56,7 @@ namespace Autofac.TypedFactories.Test
             Assert.AreNotSame(createdInstance, createdInstance2);
         }
 
-        [TestMethod]
+        [Test]
         public void ParameteredFactoryForObjectsWithDependencies()
         {
             var containerBuilder = new ContainerBuilder();
@@ -79,7 +80,7 @@ namespace Autofac.TypedFactories.Test
             Assert.AreNotSame(createdInstance, createdInstance2);
         }
 
-        [TestMethod]
+        [Test]
         public void ParameterlessFactoryReturningConcreteType()
         {
             var containerBuilder = new ContainerBuilder();
@@ -93,7 +94,7 @@ namespace Autofac.TypedFactories.Test
             Assert.AreNotSame(createdInstance, createdInstance2);
         }
 
-        [TestMethod]
+        [Test]
         public void NonGenericRegistration_ParameterlessFactoryReturningConcreteType()
         {
             var containerBuilder = new ContainerBuilder();
@@ -107,7 +108,7 @@ namespace Autofac.TypedFactories.Test
             Assert.AreNotSame(createdInstance, createdInstance2);
         }
 
-        [TestMethod]
+        [Test]
         public void NonGenericRegistration_ParameterlessFactory()
         {
             var containerBuilder = new ContainerBuilder();
@@ -121,7 +122,7 @@ namespace Autofac.TypedFactories.Test
             Assert.AreNotSame(createdInstance, createdInstance2);
         }
 
-        [TestMethod]
+        [Test]
         public void ParameterlessMultipleFactories()
         {
             var containerBuilder = new ContainerBuilder();
@@ -147,8 +148,7 @@ namespace Autofac.TypedFactories.Test
 
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(FactorySignatureMismatchException))]
+        [Test]        
         public void DetectMisalignedFactorySignatures()
         {
             var containerBuilder = new ContainerBuilder();
@@ -156,7 +156,16 @@ namespace Autofac.TypedFactories.Test
             // normal dependency, unrelated to factories
             containerBuilder.RegisterType<DependencyService>().As<IDependencyService>();
 
-            containerBuilder.RegisterTypedFactory<IParameteredServiceFactory>().ForConcreteType<MisalignedParameteredService>();       
+            try
+            {
+                containerBuilder.RegisterTypedFactory<IParameteredServiceFactory>().ForConcreteType<MisalignedParameteredService>();
+            }
+            catch (FactorySignatureMismatchException)
+            {
+                // it's all good
+                return;
+            }
+            Assert.Fail($"A {nameof(FactorySignatureMismatchException)} exception should have been thrown by now.");
         }
     }
 }
