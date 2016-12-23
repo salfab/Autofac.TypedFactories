@@ -1,6 +1,6 @@
 language: csharp
 solution: "./src/Autofac.TypedFactories.sln"
 install:
-- travis_retry nuget restore -source "https://api.nuget.org/v3/index.json" "./src/Autofac.TypedFactories.sln"
+- travis_retry nuget restore -verbosity -source "https://api.nuget.org/v3/index.json" "./src/Autofac.TypedFactories.sln"
 script:
 - xbuild "./src/Autofac.TypedFactories.sln"
