@@ -14,7 +14,7 @@ build:
   verbosity: minimal
 deploy:
 - provider: NuGet
-  server: https://www.nuget.org/api/v2/package
+  server: https://www.nuget.org/api/v2
   api_key:
     secure: 4wZX/8xmg2FhrYoFP9NoSOKSGEURiqlH3li5G3aBkkbnILsSw23jrcnCfZMcyoRn
   on:
