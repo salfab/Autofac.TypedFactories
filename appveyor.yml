@@ -15,17 +15,20 @@ build:
 after_build:
 - cmd: nuget pack  %APPVEYOR_BUILD_FOLDER%\src\Autofac.TypedFactories\Autofac.TypedFactories.csproj
 - cmd: nuget pack  %APPVEYOR_BUILD_FOLDER%\src\Autofac.TypedFactories\Autofac.TypedFactories.csproj -symbols
+artifacts:
+- path: '**/*.nupkg'
+  name: NuGet_pkg
 deploy:
 - provider: NuGet
   server: https://www.nuget.org/api/v2
-  artifact: /.*\.nupkg/
+  artifact: NuGet_pkg
   api_key:
     secure: 4wZX/8xmg2FhrYoFP9NoSOKSGEURiqlH3li5G3aBkkbnILsSw23jrcnCfZMcyoRn
   on:
     branch: master
 - provider: NuGet
   server: https://www.nuget.org/api/v2
-  artifact: /.*\.nupkg/
+  artifact: NuGet_pkg
   api_key:
     secure: 4wZX/8xmg2FhrYoFP9NoSOKSGEURiqlH3li5G3aBkkbnILsSw23jrcnCfZMcyoRn
   on:
