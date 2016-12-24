@@ -13,7 +13,8 @@ before_build:
 build:
   verbosity: minimal
 after_build:
-- cmd: ./NuGet/PublishPackage.cmd
+- cmd: ./NuGet/nuget pack  ..\src\Autofac.TypedFactories\Autofac.TypedFactories.csproj
+- cmd: ./NuGet/nuget pack  ..\src\Autofac.TypedFactories\Autofac.TypedFactories.csproj -symbols
 deploy:
 - provider: NuGet
   server: https://www.nuget.org/api/v2
