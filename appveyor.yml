@@ -2,6 +2,7 @@ version: Build-{build}
 branches:
   only:
   - develop
+  - master
 environment:
   packageVersion: NotSet
   packageName: autofac.typedfactories
