@@ -46,5 +46,8 @@ else
     }
 }
 
+# Write next version on console
+"Next version is " + $nextVersion
+
 # Replace AssemblyInfo.cs with the newer version ($nextVersion)
 [IO.File]::WriteAllLines($assemblyInfoPath, ((Get-Content $assemblyInfoPath) | ForEach-Object { $_ -replace 'AssemblyInformationalVersion\("([0-9]*).([0-9]*).([0-9]*)(.*?)"\)', "AssemblyInformationalVersion(""$nextVersion"")" }))
