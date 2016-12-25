@@ -10,7 +10,7 @@ environment:
   repoNuGet: https://www.nuget.org/api/v2
 before_build:
 - nuget restore -verbosity detailed -source "https://www.nuget.org/api/v2" "./src/Autofac.TypedFactories.sln"
-- ps: .\src\PackageVersion\SetNextVersion.ps1 $env:assemblyInfoPath $env:packageName $env:APPVEYOR_REPO_BRANCH $env:repoNuGet
+- ps: .\src\AssemblyInfoVersion\src\SetNextVersion.ps1 $env:assemblyInfoPath $env:packageName $env:APPVEYOR_REPO_BRANCH $env:repoNuGet
 build:
   verbosity: minimal
 after_build:
