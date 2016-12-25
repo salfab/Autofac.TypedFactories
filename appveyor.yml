@@ -17,7 +17,7 @@ after_build:
 - cmd: nuget pack %APPVEYOR_BUILD_FOLDER%\src\Autofac.TypedFactories\Autofac.TypedFactories.csproj
 - cmd: nuget pack %APPVEYOR_BUILD_FOLDER%\src\Autofac.TypedFactories\Autofac.TypedFactories.csproj -symbols
 artifacts:
-- path: '**/*.nupkg'
+- path: '**/Autofac.TypedFactories.*.nupkg'
   name: NuGet_pkg
 deploy:
 - provider: NuGet
