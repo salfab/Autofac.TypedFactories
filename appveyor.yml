@@ -10,6 +10,7 @@ environment:
   repoNuGet: https://www.nuget.org/api/v2
 before_build:
 - nuget restore -verbosity detailed -source "https://www.nuget.org/api/v2" "./src/Autofac.TypedFactories.sln"
+- git submodule update --init --recursive
 - ps: .\src\AssemblyInfoVersion\src\SetNextVersion.ps1 $env:assemblyInfoPath $env:packageName $env:APPVEYOR_REPO_BRANCH $env:repoNuGet
 build:
   verbosity: minimal
