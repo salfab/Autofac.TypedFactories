@@ -1,0 +1,3 @@
+[submodule "AssemblyInfoVersion"]
+	path = AssemblyInfoVersion
+	url = https://github.com/duvaneljulien/AssemblyInfoVersion.git
