@@ -4,6 +4,7 @@ namespace Autofac.TypedFactories.Test
 {
     using System;
 
+    using Autofac.Core;
     using Autofac.TypedFactories.Exceptions;
     using Autofac.TypedFactories.Test.TestDomain;
 
@@ -166,6 +167,21 @@ namespace Autofac.TypedFactories.Test
                 return;
             }
             Assert.Fail($"A {nameof(FactorySignatureMismatchException)} exception should have been thrown by now.");
+        }
+
+        [TestMethod]
+        public void FactoryRegistration()
+        {
+            var containerBuilder = new ContainerBuilder();
+            var types = new []{ typeof(AopBasedDependencyService) };
+
+            // act
+            containerBuilder.RegisterFactoriesFor(types);
+
+            var container = containerBuilder.Build();
+            var dependencyServiceFactory = container.Resolve<IDependencyServiceFactory>();
+            Assert.IsNotNull(dependencyServiceFactory);
+          
         }
     }
 }

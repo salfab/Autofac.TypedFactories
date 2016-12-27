@@ -1,4 +1,4 @@
-namespace Autofac.TypedFactories.Test
+namespace Autofac.TypedFactories.Test.TestDomain
 {
     public class ParameteredService : IParameteredService
     {
