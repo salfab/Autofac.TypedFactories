@@ -43,36 +43,7 @@ namespace Autofac.TypedFactories
         /// </typeparam>
         public override void ForConcreteType<TTo>()
         {
-            //TODO: Check if we can re-use the base class' implementation instead of overriding the whole method.
-            this.ForConcreteType(typeof(TTo));
-            return;
-            this.EnforceFactoryCanCreateConcreteType(typeof(TFactory), typeof(TTo));
-
-            //TODO: Add a "ForRegisteredType" to avoid registering the same type twice ?
-            this.ContainerBuilder.RegisterType<TTo>();
-
-            var allSignaturesMatch = typeof(TFactory)
-                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .Where(info => info.ReturnType.IsAssignableFrom(typeof(TTo)))
-                .Select(info => this.IsSignatureAligned(info, typeof(TTo)))
-                .All(b => b);
-            if (!allSignaturesMatch)
-            {
-                throw new FactorySignatureMismatchException("No signatures in the factory are matching the type to construct.");
-            }
-
-            Func<IComponentContext, TFactory> injectionFactory = context =>
-                {
-                    var lifetimeScope = context.Resolve<ILifetimeScope>();
-                    return ProxyGenerator.CreateInterfaceProxyWithoutTarget<TFactory>(new GenericFactoryInterceptor<TTo>(context,lifetimeScope, this.Name));
-                };
-
-            this.ContainerBuilder.Register(injectionFactory);
-
-            if (this.Name != null)
-            {
-                throw new NotImplementedException("passing a Name is not supported by autofac... or is it ?");
-            }
+            this.ForConcreteType(typeof(TTo)); 
         }
 
         /// <summary>

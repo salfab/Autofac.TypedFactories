@@ -2,11 +2,10 @@
 {
     using System;
 
-    internal class TypeCannotBeCreatedByFactoryException : Exception
+    public class TypeCannotBeCreatedByFactoryException : Exception
     {
-        public TypeCannotBeCreatedByFactoryException(string s)
+        public TypeCannotBeCreatedByFactoryException(string message) : base(message)
         {
-            throw new NotImplementedException();
         }
     }
 }

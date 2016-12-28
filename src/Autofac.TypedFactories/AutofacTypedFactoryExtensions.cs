@@ -174,28 +174,27 @@ namespace Autofac.TypedFactories
             return containerBuilder;
         }
 
-        public static ContainerBuilder RegisterTypedFactoriesFor(this ContainerBuilder containerBuilder, Type[] types)
+        /// <summary>
+        /// Registers dynamic factories for the specified, according to their <see cref="InstantiateWithDynamicFactoryAttribute"/>.
+        /// </summary>
+        /// <param name="containerBuilder">The autofac <see cref="ContainerBuilder"/>.</param>
+        /// <param name="types">The types to register a factory for.</param>
+        /// <exception cref="ArgumentException">When the specidief <paramref name="types"/> contains types that were not decorated with the <see cref="InstantiateWithDynamicFactoryAttribute"/></exception>
+        /// <returns>The specified <paramref name="containerBuilder"/>, with the factories being registered.</returns>
+        public static TypedFactoryRegistrationByTypes RegisterTypedFactoriesFor(this ContainerBuilder containerBuilder, Type[] types)
         {
-            var invalidTypes = types.Where(type => !type.IsDefined(typeof(InstantiateWithDynamicFactoryAttribute), false)).ToArray();
+            return new TypedFactoryRegistrationByTypes(containerBuilder, types);
 
-            if (invalidTypes.Any())
-            {
-                var printFriendlyInvalidTypesListing = invalidTypes
-                    .Select(type => type.Name)
-                    .Aggregate((typeName1, typeName2) => $"{typeName1}, {typeName2}");
-
-                throw new ArgumentException($"The specified types contained a type not decorated with the {nameof(InstantiateWithDynamicFactoryAttribute)} attribute.\nInvalid types: {printFriendlyInvalidTypesListing}", nameof(types));
-            }
-
-            foreach (var type in types)
-            {
-                var factoryType = type.GetAttribute<InstantiateWithDynamicFactoryAttribute>().FactoryType;
-                containerBuilder.RegisterTypedFactory(factoryType).ForConcreteType(type);
-            }
-
-            return containerBuilder;
         }
 
+
+
+        /// <param name="containerbuilder">the autofac <see cref="ContainerBuilder"/>.</param>
+        /// <param name="assemblyContainingTypes">The <see cref="Assembly"/> containing the types to register.</param>
+        public static TypedFactoryRegistrationByAssembly RegisterTypedFactoriesFor(this ContainerBuilder containerbuilder, params Assembly[] assemblyContainingTypes)
+        {
+            return new TypedFactoryRegistrationByAssembly(containerbuilder, assemblyContainingTypes);
+        }
 
 
         /// <summary>
@@ -223,5 +222,96 @@ namespace Autofac.TypedFactories
         }
 
         #endregion
+
+
+    }
+
+    public class TypedFactoryRegistrationByAssembly : TypedFactoryRegistrationBase
+    {
+
+
+        public TypedFactoryRegistrationByAssembly(ContainerBuilder containerBuilder, Assembly[] assemblies)
+            : base(containerBuilder, assemblies.SelectMany(assembly => assembly.GetTypes().Where(type => type.IsDefined(typeof(InstantiateWithDynamicFactoryAttribute), false))).ToArray())
+        {
+        }
+
+        //private ContainerBuilder Register()
+        //{
+        //    foreach (var assembly in assemblies)
+        //    {
+        //        var typesMarkedByAttribute = assembly.GetTypes().Where(type => type.IsDefined(typeof(InstantiateWithDynamicFactoryAttribute), false)).ToArray();
+        //        InternalContainerBuilder(this.containerBuilder, typesMarkedByAttribute);
+        //    }
+        //    return this.containerBuilder;
+        //}
+
+    }
+
+    public class TypedFactoryRegistrationByTypes : TypedFactoryRegistrationBase
+    {
+
+
+        public TypedFactoryRegistrationByTypes(ContainerBuilder containerBuilder, Type[] types) 
+            : base(containerBuilder, types)
+        {
+
+
+        }
+    }
+
+    public abstract class TypedFactoryRegistrationBase
+    {
+        protected ContainerBuilder ContainerBuilder { get; }
+        protected Type[] Types { get; private set; }
+
+        protected TypedFactoryRegistrationBase(ContainerBuilder containerBuilder, Type[] types)
+        {
+            this.Types = types;
+            this.ContainerBuilder = containerBuilder;
+        }
+
+
+
+        /// <remarks>All types are expected to be decorated with the <see cref="InstantiateWithDynamicFactoryAttribute"/>.</remarks>
+        protected ContainerBuilder InternalContainerBuilder(ContainerBuilder containerBuilder, Type[] types)
+        {
+            foreach (var type in types)
+            {
+                var factoryType = type.GetAttribute<InstantiateWithDynamicFactoryAttribute>().FactoryType;
+                containerBuilder.RegisterTypedFactory(factoryType).ForConcreteType(type);
+            }
+
+            return containerBuilder;
+        }
+
+        public void Except(params Type[] types)
+        {
+            this.Types = this.Types.Except(types).ToArray();
+            this.Register();
+        }
+
+        public void UsingAop()
+        {
+            this.Register();
+        }
+
+        protected ContainerBuilder Register()
+        {
+            var invalidTypes = this.Types.Where(type => !type.IsDefined(typeof(InstantiateWithDynamicFactoryAttribute), false)).ToArray();
+
+            if (invalidTypes.Any())
+            {
+                var printFriendlyInvalidTypesListing = invalidTypes
+                    .Select(type => type.Name)
+                    .Aggregate((typeName1, typeName2) => $"{typeName1}, {typeName2}");
+
+
+                // change exception
+                throw new InvalidOperationException(
+                    $"The specified types contained a type not decorated with the {nameof(InstantiateWithDynamicFactoryAttribute)} attribute.\nInvalid types: {printFriendlyInvalidTypesListing}");
+            }
+
+            return InternalContainerBuilder(this.ContainerBuilder, this.Types);
+        }
     }
 }

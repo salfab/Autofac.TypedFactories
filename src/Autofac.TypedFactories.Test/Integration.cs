@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Reflection;
+using NUnit.Framework;
 
 namespace Autofac.TypedFactories.Test
 {
@@ -183,19 +184,54 @@ namespace Autofac.TypedFactories.Test
         }
 
         [Test]
-        public void ConventionBasedFactoryRegistration()
+        public void ConventionBasedFactoryRegistrationForTypes()
         {
             var containerBuilder = new ContainerBuilder();
             var types = new []{ typeof(AopBasedDependencyService) };
 
             // act
-            containerBuilder.RegisterTypedFactoriesFor(types);
+            containerBuilder.RegisterTypedFactoriesFor(types).UsingAop();
 
             var container = containerBuilder.Build();
             var dependencyServiceFactory = container.Resolve<IDependencyServiceFactory>();
             Assert.IsNotNull(dependencyServiceFactory);          
         }
 
+        [Test]
+        public void ConventionBasedFactoryRegistrationForTypesWithExceptions()
+        {
+            var containerBuilder = new ContainerBuilder();
+            var types = new[] { typeof(AopBasedDependencyService), typeof(MismatchedAopBasedParameteredService) };
+
+            // act
+            containerBuilder.RegisterTypedFactoriesFor(types).Except(typeof(MismatchedAopBasedParameteredService));
+
+            var container = containerBuilder.Build();
+            var dependencyServiceFactory = container.Resolve<IDependencyServiceFactory>();
+            Assert.IsNotNull(dependencyServiceFactory);
+        }
+
+        [Test]
+        public void ConventionBasedFactoryRegistrationForAssemblies()
+        {
+            var containerBuilder = new ContainerBuilder();
+            var types = new[] { typeof(AopBasedDependencyService) };
+
+            // act
+
+            try
+            {
+                containerBuilder.RegisterTypedFactoriesFor(Assembly.GetExecutingAssembly()).UsingAop();
+            }
+            catch (TypeCannotBeCreatedByFactoryException e)
+            {
+                StringAssert.DoesNotContain(nameof(AopBasedDependencyService), e.Message, "If we register all factories in the assembly, we will register the mismatched factory, so it will throw an exception at registration.");
+                return;
+            }
+
+            Assert.Fail($"The {nameof(TypeCannotBeCreatedByFactoryException)} exception should have been thrown by now.");
+        }
+      
         [Test]
         public void ConventionBasedFactoryRegistrationWithUnmarkedTypes()
         {
@@ -205,9 +241,9 @@ namespace Autofac.TypedFactories.Test
             // act
             try
             {
-                containerBuilder.RegisterTypedFactoriesFor(types);
+                containerBuilder.RegisterTypedFactoriesFor(types).UsingAop();
             }
-            catch (ArgumentException e)
+            catch (InvalidOperationException e)
             {
                 StringAssert.Contains(nameof(DependencyService), e.Message);
                 StringAssert.Contains(nameof(ParameteredService), e.Message);
@@ -228,15 +264,18 @@ namespace Autofac.TypedFactories.Test
             // act
             try
             {
-                containerBuilder.RegisterTypedFactoriesFor(types);
+                containerBuilder.RegisterTypedFactoriesFor(types).UsingAop();
             }
             catch (Exception e)
             {
+                Assert.Inconclusive("missing assertions here. we need to check the factories are actually resolvable");
 
                 return;
             }
 
             Assert.Fail("An exception should have been thrown by now.");
         }
+
+       
     }
 }
