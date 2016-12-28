@@ -7,7 +7,6 @@ namespace Autofac.TypedFactories.Test
     using Autofac.Core;
     using Autofac.TypedFactories.Exceptions;
     using Autofac.TypedFactories.Test.TestDomain;
-
     
     [TestFixture]
     public class Integration
@@ -169,14 +168,14 @@ namespace Autofac.TypedFactories.Test
             Assert.Fail($"A {nameof(FactorySignatureMismatchException)} exception should have been thrown by now.");
         }
 
-        [TestMethod]
+        [Test]
         public void FactoryRegistration()
         {
             var containerBuilder = new ContainerBuilder();
             var types = new []{ typeof(AopBasedDependencyService) };
 
             // act
-            containerBuilder.RegisterFactoriesFor(types);
+            containerBuilder.RegisterTypedFactoriesFor(types);
 
             var container = containerBuilder.Build();
             var dependencyServiceFactory = container.Resolve<IDependencyServiceFactory>();

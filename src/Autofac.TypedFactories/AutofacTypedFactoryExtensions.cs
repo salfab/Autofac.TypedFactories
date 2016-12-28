@@ -168,6 +168,11 @@ namespace Autofac.TypedFactories
             return containerBuilder;
         }
 
+        public static ContainerBuilder RegisterTypedFactoriesFor(this ContainerBuilder containerBuilder, Type[] types)
+        {
+            throw new NotImplementedException();            
+        }
+
         /// <summary>
         /// Registers a typed factory.
         /// </summary>
