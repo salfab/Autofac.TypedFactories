@@ -4,11 +4,4 @@ namespace Autofac.TypedFactories.Test.TestDomain
         : IDependencyService
     {
     }
-
-
-    [InstantiateWithDynamicFactory(typeof(IDependencyServiceFactory))]
-    public class AopBasedDependencyService
-        : IDependencyService
-    {
-    }
 }

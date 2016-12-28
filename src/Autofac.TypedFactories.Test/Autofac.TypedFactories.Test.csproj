@@ -58,13 +58,13 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="TestDomain\AopBasedDependencyService.cs" />
     <Compile Include="TestDomain\ConcreteDependencyService.cs" />
     <Compile Include="TestDomain\DependencyService.cs" />
     <Compile Include="TestDomain\IConcreteDependencyServiceFactory.cs" />
     <Compile Include="TestDomain\IDependencyService.cs" />
     <Compile Include="TestDomain\IDependencyServiceFactory.cs" />
     <Compile Include="Integration.cs" />
-    <Compile Include="TestDomain\InstantiateWithDynamicFactoryAttribute.cs" />
     <Compile Include="TestDomain\IOtherParameteredServiceWithDependencyFactory.cs" />
     <Compile Include="TestDomain\IParameteredService.cs" />
     <Compile Include="TestDomain\IParameteredServiceFactory.cs" />

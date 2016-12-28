@@ -3,6 +3,12 @@ using Autofac.TypedFactories.Contracts;
 
 namespace Autofac.TypedFactories
 {
+    using System.Linq;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
+
+    using Castle.Core.Internal;
+
     /// <summary>
     /// Defines extension methods for providing custom typed factories based on a factory interface.
     /// </summary>
@@ -170,7 +176,25 @@ namespace Autofac.TypedFactories
 
         public static ContainerBuilder RegisterTypedFactoriesFor(this ContainerBuilder containerBuilder, Type[] types)
         {
-            throw new NotImplementedException();            
+            var invalidTypes = types.Where(type => !type.IsDefined(typeof(InstantiateWithDynamicFactoryAttribute), false)).ToArray();
+
+            if (invalidTypes.Any())
+            {
+                var printFriendlyInvalidTypesListing = invalidTypes
+                    .Select(type => type.Name)
+                    .Aggregate((typeName1, typeName2) => $"{typeName1}, {typeName2}");
+
+                throw new ArgumentException($"The specified types contained a type not decorated with the {nameof(InstantiateWithDynamicFactoryAttribute)} attribute.\nInvalid types: {printFriendlyInvalidTypesListing}", nameof(types));
+            }
+
+            foreach (var type in types)
+            {
+                var factoryType = type.GetAttribute<InstantiateWithDynamicFactoryAttribute>().FactoryType;
+
+                containerBuilder.RegisterTypedFactory(factoryType).ForConcreteType(type);
+            }
+
+            return containerBuilder;
         }
 
         /// <summary>

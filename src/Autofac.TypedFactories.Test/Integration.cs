@@ -169,7 +169,7 @@ namespace Autofac.TypedFactories.Test
         }
 
         [Test]
-        public void FactoryRegistration()
+        public void ConventionBasedFactoryRegistration()
         {
             var containerBuilder = new ContainerBuilder();
             var types = new []{ typeof(AopBasedDependencyService) };
@@ -179,8 +179,30 @@ namespace Autofac.TypedFactories.Test
 
             var container = containerBuilder.Build();
             var dependencyServiceFactory = container.Resolve<IDependencyServiceFactory>();
-            Assert.IsNotNull(dependencyServiceFactory);
-          
+            Assert.IsNotNull(dependencyServiceFactory);          
+        }
+
+        [Test]
+        public void ConventionBasedFactoryRegistrationWithUnmarkedTypes()
+        {
+            var containerBuilder = new ContainerBuilder();
+            var types = new[] { typeof(DependencyService), typeof(AopBasedDependencyService), typeof(ParameteredService) };
+
+            // act
+            try
+            {
+                containerBuilder.RegisterTypedFactoriesFor(types);
+            }
+            catch (ArgumentException e)
+            {
+                StringAssert.Contains(nameof(DependencyService), e.Message);
+                StringAssert.Contains(nameof(ParameteredService), e.Message);
+                StringAssert.DoesNotContain(nameof(AopBasedDependencyService), e.Message);
+
+                return;
+            }
+
+            Assert.Fail("An exception should have been thrown by now.");
         }
     }
 }
