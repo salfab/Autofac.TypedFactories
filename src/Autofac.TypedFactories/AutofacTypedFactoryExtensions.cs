@@ -190,12 +190,13 @@ namespace Autofac.TypedFactories
             foreach (var type in types)
             {
                 var factoryType = type.GetAttribute<InstantiateWithDynamicFactoryAttribute>().FactoryType;
-
                 containerBuilder.RegisterTypedFactory(factoryType).ForConcreteType(type);
             }
 
             return containerBuilder;
         }
+
+
 
         /// <summary>
         /// Registers a typed factory.

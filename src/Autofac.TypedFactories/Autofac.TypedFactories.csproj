@@ -52,6 +52,7 @@
     <Compile Include="ConstructorArgumentsMismatchException.cs" />
     <Compile Include="Contracts\ITypedFactoryRegistration.cs" />
     <Compile Include="Exceptions\FactorySignatureMismatchException.cs" />
+    <Compile Include="Exceptions\TypeCannotBeCreatedByFactoryException.cs" />
     <Compile Include="FactoryInterceptor.cs" />
     <Compile Include="GenericFactoryInterceptor.cs" />
     <Compile Include="InstantiateWithDynamicFactoryAttribute.cs" />

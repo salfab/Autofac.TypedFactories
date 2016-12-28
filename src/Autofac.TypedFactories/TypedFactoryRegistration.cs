@@ -43,6 +43,11 @@ namespace Autofac.TypedFactories
         /// </typeparam>
         public override void ForConcreteType<TTo>()
         {
+            //TODO: Check if we can re-use the base class' implementation instead of overriding the whole method.
+            this.ForConcreteType(typeof(TTo));
+            return;
+            this.EnforceFactoryCanCreateConcreteType(typeof(TFactory), typeof(TTo));
+
             //TODO: Add a "ForRegisteredType" to avoid registering the same type twice ?
             this.ContainerBuilder.RegisterType<TTo>();
 
@@ -68,7 +73,7 @@ namespace Autofac.TypedFactories
             {
                 throw new NotImplementedException("passing a Name is not supported by autofac... or is it ?");
             }
-        }      
+        }
 
         /// <summary>
         /// Defines the factory already returns concrete types.
@@ -199,30 +204,36 @@ namespace Autofac.TypedFactories
         /// </param>
         public void ForConcreteType(Type toType)
         {
+            this.ForConcreteType(this.factoryContractType, toType);
+        }
+
+        private void ForConcreteType(Type factoryType, Type toType)
+        {
+            this.EnforceFactoryCanCreateConcreteType(factoryType, toType);
+
             //TODO: Add a "ForRegisteredType" to avoid registering the same type twice ?
             this.ContainerBuilder.RegisterType(toType);
 
-            var allSignaturesMatch = toType
-                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .Where(info => info.ReturnType.IsAssignableFrom(toType))
-                .Select(info => this.IsSignatureAligned(info, toType))
-                .All(b => b);
+            var allSignaturesMatch =
+                factoryType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                    .Where(info => info.ReturnType.IsAssignableFrom(toType))
+                    .Select(info => this.IsSignatureAligned(info, toType))
+                    .All(b => b);
 
             if (!allSignaturesMatch)
             {
-                throw new InvalidOperationException("No signatures in the factory are matching the type to construct.");
+                throw new FactorySignatureMismatchException("No signatures in the factory are matching the type to construct.");
             }
-
 
             // throw new NotImplementedException("Registering factories by providing the type as a parameter is not yet supported. Please provide the type of the factory as a TypeArgument");
             this.ContainerBuilder.Register(
                 (context, parameters) =>
                     {
                         var lifetimeScope = context.Resolve<ILifetimeScope>();
-                        return ProxyGenerator.CreateInterfaceProxyWithoutTarget(this.factoryContractType, new FactoryInterceptor(lifetimeScope, toType, this.Name));
-                    })
-                    .As(this.factoryContractType);
-
+                        return ProxyGenerator.CreateInterfaceProxyWithoutTarget(
+                            factoryType,
+                            new FactoryInterceptor(lifetimeScope, toType, this.Name));
+                    }).As(factoryType);
         }
 
         /// <summary>
@@ -299,6 +310,23 @@ namespace Autofac.TypedFactories
                     })
                 .As(factoryContractType);
         }
+
+        protected void EnforceFactoryCanCreateConcreteType(Type factoryType, Type concreteType)
+        {
+            var factoryCanCreateConcreteType = this.FactoryCanCreateConcreteType(factoryType, concreteType);
+            if (!factoryCanCreateConcreteType)
+            {
+                throw new TypeCannotBeCreatedByFactoryException($"The factory could not be registered because the concrete type '{concreteType}' cannot be created by the factory '{factoryType}'");
+            }
+        }
+
+        private bool FactoryCanCreateConcreteType(Type factoryType, Type concreteType)
+        {
+            return factoryType
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Any(mi => mi.ReturnType.IsAssignableFrom(concreteType));
+        }
+
 
         #endregion
     }

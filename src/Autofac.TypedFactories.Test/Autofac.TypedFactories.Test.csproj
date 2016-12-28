@@ -71,6 +71,7 @@
     <Compile Include="TestDomain\IParameteredServiceWithDependency.cs" />
     <Compile Include="TestDomain\IParameteredServiceWithDependencyFactory.cs" />
     <Compile Include="TestDomain\MisalignedParameteredService.cs" />
+    <Compile Include="TestDomain\MismatchedAopBasedDependencyService.cs" />
     <Compile Include="TestDomain\ParameteredService.cs" />
     <Compile Include="TestDomain\ParameteredServiceWithDependency.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -149,16 +149,30 @@ namespace Autofac.TypedFactories.Test
         }
 
         [Test]        
-        public void DetectMisalignedFactorySignatures()
+        public void DetectMisalignedFactorySignaturesWithGenericSyntax()
         {
             var containerBuilder = new ContainerBuilder();
-
-            // normal dependency, unrelated to factories
-            containerBuilder.RegisterType<DependencyService>().As<IDependencyService>();
 
             try
             {
                 containerBuilder.RegisterTypedFactory<IParameteredServiceFactory>().ForConcreteType<MisalignedParameteredService>();
+            }
+            catch (FactorySignatureMismatchException)
+            {
+                // it's all good
+                return;
+            }
+            Assert.Fail($"A {nameof(FactorySignatureMismatchException)} exception should have been thrown by now.");
+        }
+
+        [Test]
+        public void DetectMisalignedFactorySignatures()
+        {
+            var containerBuilder = new ContainerBuilder();
+
+            try
+            {
+                containerBuilder.RegisterTypedFactory(typeof(IParameteredServiceFactory)).ForConcreteType(typeof(MisalignedParameteredService));
             }
             catch (FactorySignatureMismatchException)
             {
@@ -198,6 +212,26 @@ namespace Autofac.TypedFactories.Test
                 StringAssert.Contains(nameof(DependencyService), e.Message);
                 StringAssert.Contains(nameof(ParameteredService), e.Message);
                 StringAssert.DoesNotContain(nameof(AopBasedDependencyService), e.Message);
+
+                return;
+            }
+
+            Assert.Fail("An exception should have been thrown by now.");
+        }
+
+        [Test]
+        public void ConventionBasedRegistrationWithMismatchedFactoryInAttribute()
+        {
+            var containerBuilder = new ContainerBuilder();
+            var types = new[] { typeof(MismatchedAopBasedParameteredService) };
+
+            // act
+            try
+            {
+                containerBuilder.RegisterTypedFactoriesFor(types);
+            }
+            catch (Exception e)
+            {
 
                 return;
             }
