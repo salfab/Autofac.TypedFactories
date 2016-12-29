@@ -33,18 +33,92 @@ On the plus side, this means no files would be generated at compilation, hence l
 The downside is that the performances aren't quite as good as if it were standard C# code. Autofac claims that resolving a type through its IoC container is ten times more expensive than newing it up with the ``new`` statement. Meaning that if this approach is great for general purposes, you probably will want to hand roll your own factories using standard C# classes if your factory needs to instantiate hundreds of objects per seconds. Luckily, you will probably never need to.
 
 ## Additional benefits
-One problem that usually starts showing up when instantiating objects without the use of a factory is how dependencies are expressed.
-Quite often, the created objects will need to receive a dependency such as a service. These services would typically be singleton, and not depend on the context in which the object was instantiated. Therefore, these dependencies could be directly resolved by an IoC, instead of passing an instance to the constructor of the class.
+The following is not exactly related to Autofac.TypedFactories, but is more of a behavioral trait linked to the price of writing code without factories. One problem that usually starts showing up when instantiating objects without the use of a factory is how dependencies are expressed.
 
-What would typically happen when a method instantiates a class without the use of a factory is that the containing class will receive a dependency in its constructor and keep a reference to it as an instance field. Sometimes, this field is not even used by the class for anything else than passing it to the constructor of a class to instantiate.
+Quite often, the created objects will need to receive a dependency, such as a service. This service would typically be a singleton, and whose state will not depend on the context in which the object was instantiated. Therefore, the dependency could be directly resolved by an IoC, instead of explicitly passing an instance to the constructor of the class.
+
+Typically, when no factories are used to instantiate a class, the containing class will receive a dependency in its constructor and keep a reference to it as an instance field. Sometimes, this field is not even used by the class for anything else than passing it to the constructor of a class to instantiate.
+
+**Given an object to be instantiated:**
+
+```csharp
+public class CustomerViewModel
+{
+	 private readonly int id;
+	 private readonly IGraphicsProvider graphicsProvider;
+
+	 public CustomerViewModel(int id, IGraphicsProvider graphicsProvider)
+	 {
+			 this.id = id;
+			 this.graphicsProvider = graphicsProvider;
+	 }
+}
+```
+**Without factories:**
+
+```csharp
+public class CustomersController : Controller
+{
+	 // This field will not even be used by CustomersController
+	 private readonly IGraphicsProvider graphicsProvider;
+
+     // graphicsProvider is injected in this constructor, even if the
+	 // class doesn't depend on it, solely because one of the methods
+	 // will instantiate another class that depends on it. Codesmell!
+	 public CustomersController(IGraphicsProvider graphicsProvider)
+	 {
+			 this.graphicsProvider = graphicsProvider;
+	 }
+
+	 public ActionResult Get(int id)
+	 {
+		     // Here, we have an overly complicated call.
+			 // if only CustomerViewModel could resolve its own dependencies,
+			 // we could just pass the valuable information: id.
+			 var viewModel = new CustomerViewModel(id, this.graphicsProvider);
+			 return View(viewModel);
+	 }
+}
+```
 
 When such a thing happens, the principle of dependency injection is broken, because there will be a class, who will get a service injected in its constructor, but on which the class itself doesn't depend directly. What it will depend on, though, is the ability to instantiate an other object, and this dependency should be expressed by injection.
 
-The mechanism responsible for the instantiation of that other object, however, will depend on a number of services that will be passed to its constructor. The beauty of it is that these services will not be present in the first class, because they will be abstracted by the injected factory. Even more elegantly, they will not show up in the factory implementation either, because the implementation doesn't exist, since it is generated on the fly by Autofac.TypedFactories.
+**With factories**
 
-The magic behind it is quite simple: since the factory instantiates objects by using the autofac IoC, any parameter that isn't specified in the Create method of the factory will be resolved by the IoC using the a service locator approach, so as long as this service was registered in autofac, the instantiated object will have its dependencies satisfied. Otherwise, an exception will be thrown.
+```csharp
+public class CustomersController : Controller
+{
+		private readonly ICustomerViewModelFactory customerViewModelFactory;
+
+        // We replaced the services CustomerViewModel depends on by a factory.
+		// This allows us to express that CustomersController depends on
+		// the need to create CustomerViewModel objects.
+		// In real-life scenarios, the factory will probably replace more than one injection,
+		// making the constructor easier to digest.		
+		public CustomersController(ICustomerViewModelFactory customerViewModelFactory)
+		{
+				this.customerViewModelFactory = customerViewModelFactory;
+		}
+
+		public ActionResult Get(int id)
+		{
+				var viewModel = this.customerViewModelFactory.Create(id);
+				return View(viewModel);
+		}
+}
+
+internal interface ICustomerViewModelFactory
+{
+		CustomerViewModel Create(int id);
+}
+```
+In this example, we replaced one service by a factory. This is because the factory will abstract away the creation of the CustomerViewModel, and since the CustomersController doesn't need IGraphicsProvider firsthand, it can be removed from its injections.
+
+In real-life scenarios, the factory will quite often replace more than one argument, making the constructor easier to digest. Even more elegantly, they will not show up in the factory implementation either, because the implementation doesn't exist, since it is generated on the fly by Autofac.TypedFactories.
+
+The way the magic works behind the scene is quite simple: since the factory instantiates objects by using the autofac IoC container, any parameter that isn't specified in the ``Create`` method of the factory will be resolved by the IoC using a service locator approach, so as long as this service was registered in autofac, the instantiated object will have its dependencies satisfied. Otherwise, an exception will be thrown when the factory will be resolved.
 
 ## A few words about the service locator approach.
-One of my favorite article ever written about IoC containers and dependency injection is ploeh's Service Locator is an Anti-Pattern. http://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern/.
+One of my favorite article ever written about IoC containers and dependency injection is ploeh's [Service Locator is an Anti-Pattern](http://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern/).
 
-The title of the article pretty much sums it all, and therefore, the fact that typed factories rely on a service locator could be worrying. However, in this particular case, we are dealing with an internal mechanism, wrapped with explicit exceptions and the consumer of the package will never have to use a service locator pattern itself. SOLID principles are preserved, encapsulation is preserved, everything is fine. You can knock yourself out using typed factories without feeling guilty about resorting to anti-patterns as it doesn't apply to this particular scenario.
+The title of the article pretty much sums it all, and therefore, the fact that Autofac.TypedFactories relies on a service locator approach could be worrying. However, in this particular case, we are dealing with an internal mechanism, wrapped with explicit exceptions, and the consumer of the package will never have to use a service locator pattern itself. SOLID principles are preserved, encapsulation is preserved, everything is fine. You can knock yourself out using typed factories without feeling guilty about resorting to anti-patterns, as it doesn't apply to this particular scenario.
