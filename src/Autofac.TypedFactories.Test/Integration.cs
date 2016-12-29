@@ -204,7 +204,7 @@ namespace Autofac.TypedFactories.Test
             var types = new[] { typeof(AopBasedDependencyService), typeof(MismatchedAopBasedParameteredService) };
 
             // act
-            containerBuilder.RegisterTypedFactoriesFor(types).Except(typeof(MismatchedAopBasedParameteredService));
+            containerBuilder.RegisterTypedFactoriesFor(types).Except(typeof(MismatchedAopBasedParameteredService)).UsingAop();
 
             var container = containerBuilder.Build();
             var dependencyServiceFactory = container.Resolve<IDependencyServiceFactory>();
@@ -231,7 +231,28 @@ namespace Autofac.TypedFactories.Test
 
             Assert.Fail($"The {nameof(TypeCannotBeCreatedByFactoryException)} exception should have been thrown by now.");
         }
-      
+
+        [Test]
+        public void ConventionBasedFactoryRegistrationForAssembliesWithExceptions()
+        {
+            var containerBuilder = new ContainerBuilder();
+            var types = new[] { typeof(AopBasedDependencyService) };
+
+            // act
+
+            try
+            {
+                containerBuilder.RegisterTypedFactoriesFor(Assembly.GetExecutingAssembly()).Except(typeof(AopBasedDependencyService)).UsingAop();
+            }
+            catch (TypeCannotBeCreatedByFactoryException e)
+            {
+                StringAssert.DoesNotContain(nameof(AopBasedDependencyService), e.Message, "If we register all factories in the assembly, we will register the mismatched factory, so it will throw an exception at registration.");
+                return;
+            }
+
+            Assert.Fail($"The {nameof(TypeCannotBeCreatedByFactoryException)} exception should have been thrown by now.");
+        }
+
         [Test]
         public void ConventionBasedFactoryRegistrationWithUnmarkedTypes()
         {
@@ -268,8 +289,6 @@ namespace Autofac.TypedFactories.Test
             }
             catch (Exception e)
             {
-                Assert.Inconclusive("missing assertions here. we need to check the factories are actually resolvable");
-
                 return;
             }
 

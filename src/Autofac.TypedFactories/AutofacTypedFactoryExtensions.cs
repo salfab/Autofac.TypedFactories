@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using Autofac.TypedFactories.Contracts;
+
+using System.Linq;
+using System.Reflection;
+using Castle.Core.Internal;
 
 namespace Autofac.TypedFactories
 {
-    using System.Linq;
-    using System.Reflection;
-    using System.Runtime.CompilerServices;
-
-    using Castle.Core.Internal;
-
     /// <summary>
     /// Defines extension methods for providing custom typed factories based on a factory interface.
     /// </summary>
@@ -262,18 +261,16 @@ namespace Autofac.TypedFactories
     public abstract class TypedFactoryRegistrationBase
     {
         protected ContainerBuilder ContainerBuilder { get; }
-        protected Type[] Types { get; private set; }
+        protected List<Type> Types { get; private set; }
 
-        protected TypedFactoryRegistrationBase(ContainerBuilder containerBuilder, Type[] types)
+        protected TypedFactoryRegistrationBase(ContainerBuilder containerBuilder, IEnumerable<Type> types)
         {
-            this.Types = types;
+            this.Types = new List<Type>(types);
             this.ContainerBuilder = containerBuilder;
         }
 
-
-
         /// <remarks>All types are expected to be decorated with the <see cref="InstantiateWithDynamicFactoryAttribute"/>.</remarks>
-        protected ContainerBuilder InternalContainerBuilder(ContainerBuilder containerBuilder, Type[] types)
+        protected ContainerBuilder InternalContainerBuilder(ContainerBuilder containerBuilder, IEnumerable<Type> types)
         {
             foreach (var type in types)
             {
@@ -284,10 +281,10 @@ namespace Autofac.TypedFactories
             return containerBuilder;
         }
 
-        public void Except(params Type[] types)
+        public TypedFactoryRegistrationBase Except(params Type[] typesToIgnore)
         {
-            this.Types = this.Types.Except(types).ToArray();
-            this.Register();
+            this.Types.RemoveAll(typesToIgnore.Contains);
+            return this;
         }
 
         public void UsingAop()
