@@ -1,8 +1,6 @@
 ---
 layout: default
 ---
-[Usage](usage) [FAQ](faq)
-
 # What is Autofac.TypedFactories ?
 
 Autofac.TypedFactories aims at solving a problem typically encountered when practicing TDD.
@@ -44,14 +42,14 @@ Typically, when no factories are used to instantiate a class, the containing cla
 ```csharp
 public class CustomerViewModel
 {
-	 private readonly int id;
-	 private readonly IGraphicsProvider graphicsProvider;
+    private readonly int id;
+    private readonly IGraphicsProvider graphicsProvider;
 
-	 public CustomerViewModel(int id, IGraphicsProvider graphicsProvider)
-	 {
-			 this.id = id;
-			 this.graphicsProvider = graphicsProvider;
-	 }
+    public CustomerViewModel(int id, IGraphicsProvider graphicsProvider)
+    {
+        this.id = id;
+        this.graphicsProvider = graphicsProvider;
+    }
 }
 ```
 **Without factories:**
@@ -59,25 +57,25 @@ public class CustomerViewModel
 ```csharp
 public class CustomersController : Controller
 {
-	 // This field will not even be used by CustomersController
-	 private readonly IGraphicsProvider graphicsProvider;
+    // This field will not even be used by CustomersController
+    private readonly IGraphicsProvider graphicsProvider;
 
-     // graphicsProvider is injected in this constructor, even if the
-	 // class doesn't depend on it, solely because one of the methods
-	 // will instantiate another class that depends on it. Codesmell!
-	 public CustomersController(IGraphicsProvider graphicsProvider)
-	 {
-			 this.graphicsProvider = graphicsProvider;
-	 }
+    // graphicsProvider is injected in this constructor, even if the
+    // class doesn't depend on it, solely because one of the methods
+    // will instantiate another class that depends on it. Codesmell!
+    public CustomersController(IGraphicsProvider graphicsProvider)
+    {
+        this.graphicsProvider = graphicsProvider;
+    }
 
-	 public ActionResult Get(int id)
-	 {
-		     // Here, we have an overly complicated call.
-			 // if only CustomerViewModel could resolve its own dependencies,
-			 // we could just pass the valuable information: id.
-			 var viewModel = new CustomerViewModel(id, this.graphicsProvider);
-			 return View(viewModel);
-	 }
+    public ActionResult Get(int id)
+    {
+        // Here, we have an overly complicated call.
+        // if only CustomerViewModel could resolve its own dependencies,
+        // we could just pass the valuable information: id.
+        var viewModel = new CustomerViewModel(id, this.graphicsProvider);
+        return View(viewModel);
+    }
 }
 ```
 
@@ -88,28 +86,28 @@ When such a thing happens, the principle of dependency injection is broken, beca
 ```csharp
 public class CustomersController : Controller
 {
-		private readonly ICustomerViewModelFactory customerViewModelFactory;
+    private readonly ICustomerViewModelFactory customerViewModelFactory;
 
-        // We replaced the services CustomerViewModel depends on by a factory.
-		// This allows us to express that CustomersController depends on
-		// the need to create CustomerViewModel objects.
-		// In real-life scenarios, the factory will probably replace more than one injection,
-		// making the constructor easier to digest.		
-		public CustomersController(ICustomerViewModelFactory customerViewModelFactory)
-		{
-				this.customerViewModelFactory = customerViewModelFactory;
-		}
-
-		public ActionResult Get(int id)
-		{
-				var viewModel = this.customerViewModelFactory.Create(id);
-				return View(viewModel);
-		}
+    // We replaced the services CustomerViewModel depends on by a factory.
+    // This allows us to express that CustomersController depends on
+    // the need to create CustomerViewModel objects.
+    // In real-life scenarios, the factory will probably replace more than one
+    // injection, making the constructor easier to digest.
+    public CustomersController(ICustomerViewModelFactory customerViewModelFactory)
+    {
+        this.customerViewModelFactory = customerViewModelFactory;
+    }
+    
+    public ActionResult Get(int id)
+    {
+        var viewModel = this.customerViewModelFactory.Create(id);
+        return View(viewModel);
+    }
 }
 
 internal interface ICustomerViewModelFactory
 {
-		CustomerViewModel Create(int id);
+    CustomerViewModel Create(int id);
 }
 ```
 In this example, we replaced one service by a factory. This is because the factory will abstract away the creation of the CustomerViewModel, and since the CustomersController doesn't need IGraphicsProvider firsthand, it can be removed from its injections.
