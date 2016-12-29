@@ -1,4 +1,7 @@
 version: Build-{build}
+skip_commits:
+  files:
+    - docs/*
 branches:
   only:
   - develop
