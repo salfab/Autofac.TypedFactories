@@ -1,8 +1,6 @@
 ---
 layout: default
 ---
-[Usage](usage) [FAQ](faq)
-
 # What is Autofac.TypedFactories ?
 
 Autofac.TypedFactories aims at solving a problem typically encountered when practicing TDD.
