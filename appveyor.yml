@@ -2,6 +2,7 @@ version: Build-{build}
 skip_commits:
   files:
     - docs/*
+    - appveyor.yml
 branches:
   only:
   - develop
