@@ -43,6 +43,7 @@ Long story short, autofac's delegate factories can be _stubbed_, not _mocked_.
 
 ## Aren't there already other dynamic factory packages?
 There are many IoC containers for .net out there, and pretty much all of them have their TypedFactories package.
+
 - Ninject [has an official Factory extension](https://github.com/ninject/Ninject.Extensions.Factory).
 - Castle.Windsor has an official [Typed Factory Facility](https://github.com/castleproject/Windsor/blob/master/docs/typed-factory-facility-interface-based.md), supporting interface-based factories.
 - Unity has a [community-maintained package](https://github.com/PombeirP/Unity.TypedFactories).
