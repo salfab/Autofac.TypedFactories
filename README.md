@@ -7,6 +7,6 @@ This package provides dynamically generated factories, similar to Castle.Windsor
 
 Learn more on the [official website](https://salfab.github.io/Autofac.TypedFactories)
 or
-[Get started](https://salfab.github.io/Autofac.TypedFactories) in 5 minutes
+[Get started](https://salfab.github.io/Autofac.TypedFactories/usage) in 5 minutes
 
 
