@@ -27,7 +27,7 @@ Using Roslyn, it would be technically possible to analyze the signatures of a ``
 
 ### Dynamic proxies
 The other approach is to generate dynamic proxy objects at runtime for the factory interfaces. These dynamic proxies would instantiate the objects to return, not by calling the new statement, but by leveraging the power of an IoC container.
-On the plus side, this means no files would be generated at compilation, hence less files in the solution, and both the implementation and the usage of this package is much simpler.
+On the plus side, this means no files would be generated at compilation, hence less files in the solution, and both the implementation and the usage of this package are much simpler.
 The downside is that the performances aren't quite as good as if it were standard C# code. Autofac claims that resolving a type through its IoC container is ten times more expensive than newing it up with the ``new`` statement. Meaning that if this approach is great for general purposes, you probably will want to hand roll your own factories using standard C# classes if your factory needs to instantiate hundreds of objects per seconds. Luckily, you will probably never need to.
 
 ## Additional benefits
