@@ -110,7 +110,7 @@ internal interface ICustomerViewModelFactory
     CustomerViewModel Create(int id);
 }
 ```
-In this example, we replaced one service by a factory. This is because the factory will abstract away the creation of the CustomerViewModel, and since the CustomersController doesn't need IGraphicsProvider firsthand, it can be removed from its injections.
+In this example, we replaced one service by a factory. This is because the factory will abstract away the creation of the ``CustomerViewModel``, and since the ``CustomersController`` doesn't need ``IGraphicsProvider`` firsthand, it can be removed from its injections.
 
 In real-life scenarios, the factory will quite often replace more than one argument, making the constructor easier to digest. Even more elegantly, they will not show up in the factory implementation either, because the implementation doesn't exist, since it is generated on the fly by Autofac.TypedFactories.
 
