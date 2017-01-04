@@ -5,4 +5,8 @@
 # Autofac.TypedFactories
 This package provides dynamically generated factories, similar to Castle.Windsor Typed Factoriy Facility, but for the Autofac IoC container.
 
-Learn more on the official website: https://salfab.github.io/Autofac.TypedFactories
+Learn more on the [official website](https://salfab.github.io/Autofac.TypedFactories)
+or
+[Get started](https://salfab.github.io/Autofac.TypedFactories) in 5 minutes
+
+
