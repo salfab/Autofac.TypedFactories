@@ -25,6 +25,7 @@ Unfortunately, there is no easy and cheap way to control what the ``new`` statem
 The problem, however, is that it is a tedious task because every single factory needs to be implemented manually. For each type instantiated in a tested method, there would be:
 
 - An implementation of the instantiated class.
+
 ```csharp
 public class ParameteredServiceWithDependency : IParameteredServiceWithDependency
 {
@@ -40,6 +41,7 @@ public class ParameteredServiceWithDependency : IParameteredServiceWithDependenc
 }
 ```
 - An interface the class will need to implement (in order to mock the returned object)
+
 ```csharp
 public interface IParameteredServiceWithDependency
 {
@@ -49,6 +51,7 @@ public interface IParameteredServiceWithDependency
 }
 ```
 - An interface describing the contract of the factory
+
 ```csharp
 public interface IParameteredServiceWithDependencyFactory
 {
@@ -56,6 +59,7 @@ public interface IParameteredServiceWithDependencyFactory
 }
 ```
 - An implementation of the factory.
+
 ```csharp
 public class ParameteredServiceWithDependencyFactory : IParameteredServiceWithDependencyFactory
 {
