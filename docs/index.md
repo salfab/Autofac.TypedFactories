@@ -7,17 +7,17 @@ Autofac.TypedFactories aims at solving a problem typically encountered when prac
 When unit-testing a method, whenever a new object is instantiated in its body, the unit test has no control over what the ``new`` statement will return.
 
 ```csharp
-// myInstance cannot be mocked
-var myInstance = new ObjectInstance(2);
-Assert.AreEqual(2, myInstance.Number);
+// myFoo cannot be mocked
+var myFoo = new Foo(2);
+Assert.AreEqual(2, myFoo.Number);
 ```
 
 In typical scenarios, we will want our test to assert that the created object has been used properly. For instance, that a given method has been called on it a number of times, with a certain parameter, or that it has been passed as an argument to another method.
 
 ```csharp
-// myInstance can be mocked
-var myInstance = factory2.Create(2);
-Assert.AreEqual(2, myInstance.Number);
+// myFoo can be mocked
+var myFoo = fooFactory.Create(2);
+Assert.AreEqual(2, myFoo.Number);
 ```
 
 Unfortunately, there is no easy and cheap way to control what the ``new`` statement returns. The usual way to work around it is to replace every ``new`` statement by a call to a ``Create`` method on a factory injected as a dependency. The factory can then be mocked and injected in the arrange part of the test, and configured so that the returned object is also a mock. This mock can ultimately be monitored by a mocking framework, such as [Moq](http://www.moqthis.com/).
