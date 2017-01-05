@@ -26,13 +26,13 @@ The problem, however, is that it is a tedious task because every single factory 
 
 - An implementation of the instantiated class.
 ```csharp
-public class ParameteredServiceWithDependency : IParameteredServiceWithDependency
+public class FoobarProvider : IFoobarProvider
 {
     public int Number { get; set; }
 
     public IDependencyService Dependency { get; set; }
 
-    public ParameteredServiceWithDependency(int number, IDependencyService dependency)
+    public FoobarProvider(int number, IDependencyService dependency)
     {
         this.Number = number;
         this.Dependency = dependency;
@@ -41,7 +41,7 @@ public class ParameteredServiceWithDependency : IParameteredServiceWithDependenc
 ```
 - An interface the class will need to implement (in order to mock the returned object)
 ```csharp
-public interface IParameteredServiceWithDependency
+public interface IFoobarProvider
 {
     int Number { get; set; }
 
@@ -50,24 +50,24 @@ public interface IParameteredServiceWithDependency
 ```
 - An interface describing the contract of the factory
 ```csharp
-public interface IParameteredServiceWithDependencyFactory
+public interface IFoobarProviderFactory
 {
-    IParameteredServiceWithDependency Create(int number);
+    IFoobarProvider Create(int number);
 }
 ```
 - An implementation of the factory.
 ```csharp
-public class ParameteredServiceWithDependencyFactory : IParameteredServiceWithDependencyFactory
+public class FoobarProviderFactory : IFoobarProviderFactory
 {
     private readonly IDependencyService dependencyService;
 
-    public ParameteredServiceWithDependencyFactory(IDependencyService dependencyService)
+    public FoobarProviderFactory(IDependencyService dependencyService)
     {
         this.dependencyService = dependencyService;
     }
-    public IParameteredServiceWithDependency Create(int number)
+    public IFoobarProvider Create(int number)
     {
-        return new ParameteredServiceWithDependency(number, dependencyService);
+        return new FoobarProvider(number, dependencyService);
     }
 }
 ```
