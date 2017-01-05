@@ -6,16 +6,71 @@ layout: default
 Autofac.TypedFactories aims at solving a problem typically encountered when practicing TDD.
 When unit-testing a method, whenever a new object is instantiated in its body, the unit test has no control over what the ``new`` statement will return.
 
+```csharp
+// myInstance cannot be mocked
+var myInstance = new ObjectInstance(2);
+Assert.AreEqual(2, myInstance.Number);
+```
+
 In typical scenarios, we will want our test to assert that the created object has been used properly. For instance, that a given method has been called on it a number of times, with a certain parameter, or that it has been passed as an argument to another method.
+
+```csharp
+// myInstance can be mocked
+var myInstance = factory2.Create(2);
+Assert.AreEqual(2, myInstance.Number);
+```
 
 Unfortunately, there is no easy and cheap way to control what the ``new`` statement returns. The usual way to work around it is to replace every ``new`` statement by a call to a ``Create`` method on a factory injected as a dependency. The factory can then be mocked and injected in the arrange part of the test, and configured so that the returned object is also a mock. This mock can ultimately be monitored by a mocking framework, such as [Moq](http://www.moqthis.com/).
 
 The problem, however, is that it is a tedious task because every single factory needs to be implemented manually. For each type instantiated in a tested method, there would be:
 
 - An implementation of the instantiated class.
+```csharp
+public class ParameteredServiceWithDependency : IParameteredServiceWithDependency
+{
+    public int Number { get; set; }
+
+    public IDependencyService Dependency { get; set; }
+
+    public ParameteredServiceWithDependency(int number, IDependencyService dependency)
+    {
+        this.Number = number;
+        this.Dependency = dependency;
+    }
+}
+```
 - An interface the class will need to implement (in order to mock the returned object)
+```csharp
+public interface IParameteredServiceWithDependency
+{
+    int Number { get; set; }
+
+    IDependencyService Dependency { get; set; }
+}
+```
 - An interface describing the contract of the factory
+```csharp
+public interface IParameteredServiceWithDependencyFactory
+{
+    IParameteredServiceWithDependency Create(int number);
+}
+```
 - An implementation of the factory.
+```csharp
+public class ParameteredServiceWithDependencyFactory : IParameteredServiceWithDependencyFactory
+{
+    private readonly IDependencyService dependencyService;
+
+    public ParameteredServiceWithDependencyFactory(IDependencyService dependencyService)
+    {
+        this.dependencyService = dependencyService;
+    }
+    public IParameteredServiceWithDependency Create(int number)
+    {
+        return new ParameteredServiceWithDependency(number, dependencyService);
+    }
+}
+```
 
 The interfaces themselves should not be a problem. The one for the instantiated class can be extracted from the implementation in no time, thanks to tools such as ReSharper. The interface for the factory needs to be described in any case if we need our code to be strongly typed - there is no magic. This leaves us with the implementation of the factory itself. This implementation usually brings no value, since all we expect it to do is to take the arguments that were passed to the factory's ``Create`` method, and pass them along to the call to the class' constructor. Boilerplate code, nothing else. This can certainly be improved, and it is exactly what Autofac.TypedFactories aims to do.
 
