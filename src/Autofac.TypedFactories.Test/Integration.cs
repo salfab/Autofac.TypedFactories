@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Reflection;
 using Autofac.TypedFactories.Exceptions;
 using Autofac.TypedFactories.Test.TestDomain;
 
