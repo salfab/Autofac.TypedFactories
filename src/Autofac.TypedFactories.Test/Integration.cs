@@ -1,14 +1,12 @@
-﻿using System.Reflection;
+﻿using System;
+
+using Autofac.TypedFactories.Exceptions;
+using Autofac.TypedFactories.Test.TestDomain;
+
 using NUnit.Framework;
 
 namespace Autofac.TypedFactories.Test
 {
-    using System;
-
-    using Autofac.Core;
-    using Autofac.TypedFactories.Exceptions;
-    using Autofac.TypedFactories.Test.TestDomain;
-    
     [TestFixture]
     public class Integration
     {

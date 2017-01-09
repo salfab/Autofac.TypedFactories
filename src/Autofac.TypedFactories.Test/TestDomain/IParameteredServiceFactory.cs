@@ -4,4 +4,6 @@ namespace Autofac.TypedFactories.Test.TestDomain
     {
         IParameteredService Create(int number);
     }
+
+
 }
