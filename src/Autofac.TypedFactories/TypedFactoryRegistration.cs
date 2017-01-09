@@ -193,8 +193,6 @@ namespace Autofac.TypedFactories
 
             if (!allSignaturesMatch)
             {
-                throw new InvalidOperationException("No signatures in the factory are matching the type to construct.");
-                throw new FactorySignatureMismatchException("No signatures in the factory are matching the type to construct.");
                 throw new FactorySignatureMismatchException($"No signature in the factory '{this.factoryContractType.Name}' matches the type '{toType.Name}' to construct.");
             }
 
