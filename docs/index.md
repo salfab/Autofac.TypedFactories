@@ -6,18 +6,83 @@ layout: default
 Autofac.TypedFactories aims at solving a problem typically encountered when practicing TDD.
 When unit-testing a method, whenever a new object is instantiated in its body, the unit test has no control over what the ``new`` statement will return.
 
+```csharp
+// myFoo cannot be mocked
+var myFoo = new Foo(2);
+Assert.AreEqual(2, myFoo.Number);
+```
+
 In typical scenarios, we will want our test to assert that the created object has been used properly. For instance, that a given method has been called on it a number of times, with a certain parameter, or that it has been passed as an argument to another method.
+
+```csharp
+// myFoo can be mocked
+var myFoo = fooFactory.Create(2);
+Assert.AreEqual(2, myFoo.Number);
+```
 
 Unfortunately, there is no easy and cheap way to control what the ``new`` statement returns. The usual way to work around it is to replace every ``new`` statement by a call to a ``Create`` method on a factory injected as a dependency. The factory can then be mocked and injected in the arrange part of the test, and configured so that the returned object is also a mock. This mock can ultimately be monitored by a mocking framework, such as [Moq](http://www.moqthis.com/).
 
 The problem, however, is that it is a tedious task because every single factory needs to be implemented manually. For each type instantiated in a tested method, there would be:
 
-- An implementation of the instantiated class.
-- An interface the class will need to implement (in order to mock the returned object)
-- An interface describing the contract of the factory
-- An implementation of the factory.
+**An implementation of the instantiated class.**
 
-The interfaces themselves should not be a problem. The one for the instantiated class can be extracted from the implementation in no time, thanks to tools such as ReSharper. The interface for the factory needs to be described in any case if we need our code to be strongly typed - there is no magic. This leaves us with the implementation of the factory itself. This implementation usually brings no value, since all we expect it to do is to take the arguments that were passed to the factory's ``Create`` method, and pass them along to the call to the class' constructor. Boilerplate code, nothing else. This can certainly be improved, and it is exactly what Autofac.TypedFactories aims to do.
+```csharp
+public class FoobarProvider : IFoobarProvider
+{
+    public int Number { get; set; }
+
+    public IDependencyService Dependency { get; set; }
+
+    public FoobarProvider(int number, IDependencyService dependency)
+    {
+        this.Number = number;
+        this.Dependency = dependency;
+    }
+}
+```
+**An interface the class will need to implement (in order to mock the returned object)**
+
+```csharp
+public interface IFoobarProvider
+{
+    int Number { get; set; }
+
+    IDependencyService Dependency { get; set; }
+}
+```
+**An interface describing the contract of the factory**
+
+```csharp
+public interface IFoobarProviderFactory
+{
+    IFoobarProvider Create(int number);
+}
+```
+**An implementation of the factory.**
+
+```csharp
+public class FoobarProviderFactory : IFoobarProviderFactory
+{
+    private readonly IDependencyService dependencyService;
+
+    public FoobarProviderFactory(IDependencyService dependencyService)
+    {
+        this.dependencyService = dependencyService;
+    }
+    public IFoobarProvider Create(int number)
+    {
+        return new FoobarProvider(number, dependencyService);
+    }
+}
+```
+
+To some, the two interfaces could be perceived as an overkill for a scenario as simple as instantiating a class, but this is the price of testability. Tools like [ReSharper](https://www.jetbrains.com/resharper/) can mitigate the burden by allowing to easily extract the interface of a class, based on its implementation.
+
+I am not too concerned about the three first types, but the last one doesn't bring any value and it should be automatically generated.
+
+All we expect the factory to do is to take the arguments that were passed to the factory's ``Create`` method, and forward them to the class' constructor. All the other arguments that weren't passed to the ``Create``  method should be received by the factory through dependeny injection.
+
+Boilerplate code, nothing else. This can certainly be improved, and it is exactly what Autofac.TypedFactories aims to do.
 
 ## How ?
 There would basically be two different approaches, each with its own pros and cons.
@@ -27,7 +92,7 @@ Using Roslyn, it would be technically possible to analyze the signatures of a ``
 
 ### Dynamic proxies
 The other approach is to generate dynamic proxy objects at runtime for the factory interfaces. These dynamic proxies would instantiate the objects to return, not by calling the new statement, but by leveraging the power of an IoC container.
-On the plus side, this means no files would be generated at compilation, hence less files in the solution, and both the implementation and the usage of this package is much simpler.
+On the plus side, this means no files would be generated at compilation, hence less files in the solution, and both the implementation and the usage of this package are much simpler.
 The downside is that the performances aren't quite as good as if it were standard C# code. Autofac claims that resolving a type through its IoC container is ten times more expensive than newing it up with the ``new`` statement. Meaning that if this approach is great for general purposes, you probably will want to hand roll your own factories using standard C# classes if your factory needs to instantiate hundreds of objects per seconds. Luckily, you will probably never need to.
 
 ## Additional benefits
@@ -110,7 +175,7 @@ internal interface ICustomerViewModelFactory
     CustomerViewModel Create(int id);
 }
 ```
-In this example, we replaced one service by a factory. This is because the factory will abstract away the creation of the CustomerViewModel, and since the CustomersController doesn't need IGraphicsProvider firsthand, it can be removed from its injections.
+In this example, we replaced one service by a factory. This is because the factory will abstract away the creation of the ``CustomerViewModel``, and since the ``CustomersController`` doesn't need ``IGraphicsProvider`` firsthand, it can be removed from its injections.
 
 In real-life scenarios, the factory will quite often replace more than one argument, making the constructor easier to digest. Even more elegantly, they will not show up in the factory implementation either, because the implementation doesn't exist, since it is generated on the fly by Autofac.TypedFactories.
 
