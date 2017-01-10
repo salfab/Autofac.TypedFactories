@@ -293,6 +293,22 @@ namespace Autofac.TypedFactories.Test
             Assert.Fail("An exception should have been thrown by now.");
         }
 
-       
+
+        [Test]
+        public void MethodlessFactory()
+        {
+            var containerBuilder = new ContainerBuilder();
+            try
+            {
+                containerBuilder.RegisterTypedFactory<IMethodlessFactory>().ForConcreteType<DependencyService>();
+            }
+            catch (TypeCannotBeCreatedByFactoryException)
+            {
+                return;
+            }         
+            Assert.Fail("Should have thrown an exception by now");
+        }
+
+
     }
 }

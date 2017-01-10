@@ -65,6 +65,7 @@
     <Compile Include="TestDomain\IDependencyService.cs" />
     <Compile Include="TestDomain\IDependencyServiceFactory.cs" />
     <Compile Include="Integration.cs" />
+    <Compile Include="TestDomain\IMethodlessFactory.cs" />
     <Compile Include="TestDomain\IOtherParameteredServiceWithDependencyFactory.cs" />
     <Compile Include="TestDomain\IParameteredService.cs" />
     <Compile Include="TestDomain\IParameteredServiceFactory.cs" />
