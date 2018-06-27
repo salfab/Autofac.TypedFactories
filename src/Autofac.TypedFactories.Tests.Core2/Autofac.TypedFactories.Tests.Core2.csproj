@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+
+    <RootNamespace>Autofac.TypedFactories.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Autofac.TypedFactories.Test\Integration.cs" Link="Integration.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\AopBasedDependencyService.cs" Link="TestDomain\AopBasedDependencyService.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\ConcreteDependencyService.cs" Link="TestDomain\ConcreteDependencyService.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\DependencyService.cs" Link="TestDomain\DependencyService.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\IConcreteDependencyServiceFactory.cs" Link="TestDomain\IConcreteDependencyServiceFactory.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\IDependencyService.cs" Link="TestDomain\IDependencyService.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\IDependencyServiceFactory.cs" Link="TestDomain\IDependencyServiceFactory.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\IMethodlessFactory.cs" Link="TestDomain\IMethodlessFactory.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\IOtherParameteredServiceWithDependencyFactory.cs" Link="TestDomain\IOtherParameteredServiceWithDependencyFactory.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\IParameteredService.cs" Link="TestDomain\IParameteredService.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\IParameteredServiceFactory.cs" Link="TestDomain\IParameteredServiceFactory.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\IParameteredServiceWithDependency.cs" Link="TestDomain\IParameteredServiceWithDependency.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\IParameteredServiceWithDependencyFactory.cs" Link="TestDomain\IParameteredServiceWithDependencyFactory.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\MisalignedParameteredService.cs" Link="TestDomain\MisalignedParameteredService.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\MismatchedAopBasedDependencyService.cs" Link="TestDomain\MismatchedAopBasedDependencyService.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\ParameteredService.cs" Link="TestDomain\ParameteredService.cs" />
+    <Compile Include="..\Autofac.TypedFactories.Test\TestDomain\ParameteredServiceWithDependency.cs" Link="TestDomain\ParameteredServiceWithDependency.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.8.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
+    <PackageReference Include="NUnit" Version="3.10.1" />
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TestDomain\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Autofac.TypedFactories.Standard\Autofac.TypedFactories.Standard.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.4.8.1\lib\net45\Autofac.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
