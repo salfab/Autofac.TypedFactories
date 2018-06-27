@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
@@ -42,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Autofac.TypedFactories.Standard\Autofac.TypedFactories.Standard.csproj" />
+    <ProjectReference Include="..\Autofac.TypedFactories\Autofac.TypedFactories.csproj" />
   </ItemGroup>
 
   <ItemGroup>
